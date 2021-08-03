@@ -27,8 +27,8 @@ public class NoteService {
         Note optionalNote = noteMapper.getNoteById(note.getNoteId());
 
         if(optionalNote != null) {
-            noteMapper.updateNote(note);
-            return true;
+            int updated = noteMapper.updateNote(note);
+            return updated > 0;
         }
         return false;
     }

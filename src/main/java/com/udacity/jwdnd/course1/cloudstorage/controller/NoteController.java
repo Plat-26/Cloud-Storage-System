@@ -21,12 +21,6 @@ public class NoteController {
         this.userService = userService;
     }
 
-//    @GetMapping
-//    public String getListOfNotes(Model model) {
-//        model.addAttribute("notes", noteService.getAllNotes());
-//        return "home";
-//    }
-
     @PostMapping
     public ModelAndView uploadNote(Authentication authentication, Note note, Model model) {
         ModelAndView result = new ModelAndView();
@@ -35,9 +29,13 @@ public class NoteController {
         note.setUserId(userService.getUser(username).getUserId());
 
         if(note.getNoteId() != null) {
-            noteService.updateNote(note);
-            result.addObject("success", true);
-            noteStatus = "Note updated!";
+            if(noteService.updateNote(note)) {
+                result.addObject("success", true);
+                noteStatus = "Note updated!";
+            } else {
+                result.addObject("errorMsg", true);
+                noteStatus = "Unable to  update note, please try again";
+            }
         } else {
             if(noteService.addNote(note)) {
                 result.addObject("success", true);
@@ -47,7 +45,6 @@ public class NoteController {
                 noteStatus = "Unable to add note, please try again";
             }
         }
-
         result.setViewName("result");
         result.addObject("message", noteStatus);
         return result;
