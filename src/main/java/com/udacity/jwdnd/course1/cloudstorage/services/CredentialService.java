@@ -17,11 +17,11 @@ public class CredentialService {
     }
 
     private boolean credentialExits(String url) {
-        return credMapper.getCredential(url) != null;
+        return credMapper.findCredentialByUrl(url) != null;
     }
 
     public Credential getCredential(String url) {
-        Credential credential = credMapper.getCredential(url);
+        Credential credential = credMapper.findCredentialByUrl(url);
 
         if(credential != null) {
             String decryptedPassword = encryptionService.decryptValue(credential.getPassword(), credential.getKey());
@@ -31,7 +31,7 @@ public class CredentialService {
     }
 
     public List<Credential> getAllCredentials() {
-        return credMapper.getAll();
+        return credMapper.findAllCredentials();
     }
 
     public boolean addCredential(Credential credential) {
@@ -45,7 +45,7 @@ public class CredentialService {
     }
 
     public boolean updateCredential(Credential credential) {
-        Credential optionalCred = credMapper.getCredentialById(credential.getCredentialId());
+        Credential optionalCred = credMapper.findCredentialById(credential.getCredentialId());
 
         if(optionalCred != null) {
             if(!optionalCred.getUrl().equals(credential.getUrl())) {

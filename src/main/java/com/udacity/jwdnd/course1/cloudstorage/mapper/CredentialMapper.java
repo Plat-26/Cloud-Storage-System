@@ -9,10 +9,10 @@ import java.util.List;
 public interface CredentialMapper {
 
     @Select("SELECT * FROM CREDENTIALS WHERE credentialId = #{id}")
-    Credential getCredentialById(int id);
+    Credential findCredentialById(int id);
 
     @Select("SELECT * FROM CREDENTIALS WHERE url = #{url}")
-    Credential getCredential(String url);
+    Credential findCredentialByUrl(String url);
 
     @Insert("INSERT INTO CREDENTIALS (url, username, key, password, userId) VALUES (#{url}, #{username}, #{key}, #{password}, #{userId})")
     @Options(useGeneratedKeys = true, keyProperty = "credentialId")
@@ -21,9 +21,15 @@ public interface CredentialMapper {
     @Update("UPDATE CREDENTIALS SET url = #{url}, username = #{username}, key = #{key}, password = #{password} WHERE userId = #{userId} AND credentialId = #{credentialId}")
     int updateCredential(Credential credential);
 
-    @Delete("DELETE * FROM CREDENTIALS WHERE url = #{url}")
+    @Delete("DELETE FROM CREDENTIALS WHERE url = #{url}")
     void deleteCredential(String url);
 
+    @Delete("DELETE FROM CREDENTIALS WHERE credentialId = #{credentialId}")
+    int deleteCredentialById(int credentialId);
+
     @Select("SELECT * FROM CREDENTIALS")
-    List<Credential> getAll();
+    List<Credential> findAllCredentials();
+
+    @Select("SELECT * FROM CREDENTIALS WHERE userId = #{userId}")
+    List<Credential> findCredentialByUser(int userId);
 }
