@@ -4,6 +4,7 @@ import com.udacity.jwdnd.course1.cloudstorage.mapper.CredentialMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
 import org.springframework.stereotype.Service;
 
+
 import java.util.List;
 
 @Service
@@ -16,16 +17,17 @@ public class CredentialService {
         this.encryptionService = encryptionService;
     }
 
-    private boolean credentialExits(String url) {
-        return credMapper.findCredentialByUrl(url) != null;
+    private boolean credentialExits(int credentialId) {
+        return credMapper.findCredentialById(credentialId) != null;
     }
 
-    public Credential getCredential(String url) {
-        Credential credential = credMapper.findCredentialByUrl(url);
+    public Credential getCredential(int credentialId) {
+        Credential credential = credMapper.findCredentialById(credentialId);
 
         if(credential != null) {
             String decryptedPassword = encryptionService.decryptValue(credential.getPassword(), credential.getKey());
-            return new Credential(credential.getCredentialId(), credential.getUrl(), credential.getUsername(), decryptedPassword);
+            credential.setPassword(decryptedPassword);
+            return credential;
         }
         return null;
     }
@@ -34,45 +36,47 @@ public class CredentialService {
         return credMapper.findAllCredentials();
     }
 
-    public boolean addCredential(Credential credential) {
-        if(!credentialExits(credential.getUrl())) {
-            String encodedKey = encryptionService.generateKey();
-            String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), encodedKey);
-            int num = credMapper.createCredential(new Credential(null, credential.getUrl(), credential.getUsername(), encodedKey, encryptedPassword, credential.getUserId()));
-            return num > 0;
+    public List<Credential> getCredentialsByUser(int userId) {
+        List<Credential> credentials = credMapper.findCredentialByUser(userId);
+        if (!credentials.isEmpty()) {
+            for(Credential credential : credentials) {
+                String decrypted = encryptionService.decryptValue(credential.getPassword(), credential.getKey());
+                credential.setDecrypted(decrypted);
+            }
         }
-        return false;
+        return credentials;
+    }
+
+    public boolean addCredential(Credential credential) {
+        String encodedKey = encryptionService.generateKey();
+        String encryptedPassword = encryptionService.encryptValue(credential.getDecrypted(), encodedKey);
+        credential.setKey(encodedKey);
+        credential.setPassword(encryptedPassword);
+        int created = credMapper.createCredential(credential);
+        return created > 0;
     }
 
     public boolean updateCredential(Credential credential) {
         Credential optionalCred = credMapper.findCredentialById(credential.getCredentialId());
 
         if(optionalCred != null) {
-            if(!optionalCred.getUrl().equals(credential.getUrl())) {
-                if(credentialExits(credential.getUrl())) {
-                    return false; //Credential exists
-                }
-            }
             String decryptedPassword = encryptionService.decryptValue(optionalCred.getPassword(), optionalCred.getKey());
-            if(!credential.getPassword().equals(decryptedPassword)) {
+            if(!credential.getDecrypted().equals(decryptedPassword)) {
                 String newKey = encryptionService.generateKey();
-                String newPassword = encryptionService.encryptValue(credential.getPassword(), newKey);
+                String newPassword = encryptionService.encryptValue(credential.getDecrypted(), newKey);
                 credential.setKey(newKey);
                 credential.setPassword(newPassword);
             }
-            credMapper.updateCredential(credential);
-            return true;
+
+            return credMapper.updateCredential(credential) > 0;
         }
         return false;
     }
 
-    public boolean deleteCredential(String url) {
-        if(credentialExits(url)) {
-            credMapper.deleteCredential(url);
-            return true;
+    public boolean deleteCredential(int credentialId) {
+        if(credentialExits(credentialId)) {
+            return credMapper.deleteCredentialById(credentialId) > 0;
         }
         return false; //credential does not exist
     }
-
-
 }
