@@ -2,6 +2,7 @@ package com.udacity.jwdnd.course1.cloudstorage.services;
 
 import com.udacity.jwdnd.course1.cloudstorage.mapper.CredentialMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
@@ -9,27 +10,20 @@ import java.util.List;
 
 @Service
 public class CredentialService {
-    private final CredentialMapper credMapper;
-    private final EncryptionService encryptionService;
+    @Autowired
+    private CredentialMapper credMapper;
+    @Autowired
+    private EncryptionService encryptionService;
 
-    public CredentialService(CredentialMapper credMapper, EncryptionService encryptionService) {
-        this.credMapper = credMapper;
-        this.encryptionService = encryptionService;
-    }
 
     private boolean credentialExits(int credentialId) {
         return credMapper.findCredentialById(credentialId) != null;
     }
 
     public Credential getCredential(int credentialId) {
-        Credential credential = credMapper.findCredentialById(credentialId);
 
-        if(credential != null) {
-            String decryptedPassword = encryptionService.decryptValue(credential.getPassword(), credential.getKey());
-            credential.setPassword(decryptedPassword);
-            return credential;
-        }
-        return null;
+        Credential credentialById = credMapper.findCredentialById(credentialId);
+        return credentialById;
     }
 
     public List<Credential> getAllCredentials() {
@@ -37,19 +31,12 @@ public class CredentialService {
     }
 
     public List<Credential> getCredentialsByUser(int userId) {
-        List<Credential> credentials = credMapper.findCredentialByUser(userId);
-        if (!credentials.isEmpty()) {
-            for(Credential credential : credentials) {
-                String decrypted = encryptionService.decryptValue(credential.getPassword(), credential.getKey());
-                credential.setDecrypted(decrypted);
-            }
-        }
-        return credentials;
+        return credMapper.findCredentialByUser(userId);
     }
 
     public boolean addCredential(Credential credential) {
         String encodedKey = encryptionService.generateKey();
-        String encryptedPassword = encryptionService.encryptValue(credential.getDecrypted(), encodedKey);
+        String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), encodedKey);
         credential.setKey(encodedKey);
         credential.setPassword(encryptedPassword);
         int created = credMapper.createCredential(credential);
@@ -61,14 +48,19 @@ public class CredentialService {
 
         if(optionalCred != null) {
             String decryptedPassword = encryptionService.decryptValue(optionalCred.getPassword(), optionalCred.getKey());
-            if(!credential.getDecrypted().equals(decryptedPassword)) {
+            if(!(credential.getPassword().equals(decryptedPassword))) {
                 String newKey = encryptionService.generateKey();
-                String newPassword = encryptionService.encryptValue(credential.getDecrypted(), newKey);
-                credential.setKey(newKey);
-                credential.setPassword(newPassword);
+                String newPassword = encryptionService.encryptValue(credential.getPassword(), newKey);
+                optionalCred.setKey(newKey);
+                optionalCred.setPassword(newPassword);
             }
-
-            return credMapper.updateCredential(credential) > 0;
+            if(credential.getUrl() != null && !credential.getUrl().equals(optionalCred.getUrl())) {
+                optionalCred.setUrl(credential.getUrl());
+            }
+            if(!credential.getUsername().isEmpty() && !credential.getUsername().equals(optionalCred.getUsername())) {
+                optionalCred.setUsername(credential.getUsername());
+            }
+            return credMapper.updateCredential(optionalCred) > 0;
         }
         return false;
     }
@@ -77,6 +69,18 @@ public class CredentialService {
         if(credentialExits(credentialId)) {
             return credMapper.deleteCredentialById(credentialId) > 0;
         }
-        return false; //credential does not exist
+        return false;
+    }
+
+    public String decryptPassword(Credential credential) {
+        if(credential.getCredentialId() == null || credential.getKey() == null) {
+            return "";
+        }
+        return encryptionService.decryptValue(credential.getPassword(), credential.getKey());
+    }
+
+    //test method
+    public void setCredMapper(CredentialMapper credMapper) {
+        this.credMapper = credMapper;
     }
 }

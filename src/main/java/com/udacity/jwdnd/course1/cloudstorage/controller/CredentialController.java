@@ -1,15 +1,15 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
+import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -71,5 +71,17 @@ public class CredentialController {
         result.setViewName("result");
         result.addObject("message", status);
         return result;
+    }
+
+    @GetMapping("/decrypt/{credentialId}")
+    @ResponseBody
+    public String decryptPassword(@PathVariable int credentialId, Authentication authentication) {
+        Credential credential = credentialService.getCredential(credentialId);
+        int currentUserId = userService.getUser(authentication.getName()).getUserId();
+
+        if(credential == null || currentUserId != credential.getUserId()) {
+            return " ";
+        }
+        return credentialService.decryptPassword(credential);
     }
 }

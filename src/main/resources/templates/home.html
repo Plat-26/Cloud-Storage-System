@@ -136,7 +136,7 @@
                                 <tbody>
                                 <tr th:each="cred : ${credentials}">
                                     <td>
-                                        <button type="button" class="btn btn-success" th:onclick="javascript:showCredentialModal([[${cred.credentialId}]], [[${cred.url}]], [[${cred.username}]], [[${cred.decrypted}]])">Edit</button>
+                                        <button type="button" class="btn btn-success" th:onclick="javascript:showCredentialModal([[${cred.credentialId}]], [[${cred.url}]], [[${cred.username}]], [[${cred.password}]])">Edit</button>
                                         <a href="@{/credentials/delete/{credentialId}(credentialId=${cred.credentialId})}" class="btn btn-danger">Delete</a>
                                     </td>
                                     <th scope="row" th:text="${cred.url}">Example Credential URL</th>
@@ -169,7 +169,7 @@
                                             </div>
                                             <div class="form-group">
                                                 <label for="note-title" class="col-form-label">Password</label>
-                                                <input th:field="*{decrypted}" type="text" name= "password" class="form-control" id="credential-password" maxlength="30" required>
+                                                <input th:field="*{password}" type="text" name= "password" class="form-control" id="credential-password" maxlength="30" required>
                                             </div>
                                             <button id="credentialSubmit" type="submit" class="d-none"></button>
                                         </form>
@@ -205,7 +205,17 @@
                 $('#credential-id').val(credentialId ? credentialId : '');
                 $('#credential-url').val(url ? url : '');
                 $('#credential-username').val(username ? username : '');
-                $('#credential-password').val(password ? password : '');
+                if(password) {
+                    var ajx = new XMLHttpRequest();
+                    ajx.open("GET", "/credentials/decrypt/" + credentialId);
+                    ajx.onload = function() {
+                        $('#credential-password').val(`${ajx.response}`);
+                        var temp = ajx.response;
+                    };
+                    ajx.send();
+                } else {
+                    $('#credential-password').val('');
+                }
                 $('#credentialModal').modal('show');
             }
         </script>
