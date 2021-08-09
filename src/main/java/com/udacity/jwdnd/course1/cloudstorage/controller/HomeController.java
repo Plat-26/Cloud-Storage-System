@@ -32,7 +32,7 @@ public class HomeController {
     @GetMapping
     public String getHomeView(Authentication authentication, Credential credential, Note note, File file, Model model) {
         int userId = userService.getUser(authentication.getName()).getUserId();
-        model.addAttribute("files", fileService.getAllFiles());
+        model.addAttribute("files", fileService.getFilesByUser(userId));
         model.addAttribute("notes", noteService.getNoteByUser(userId));
         model.addAttribute("credentials", credentialService.getCredentialsByUser(userId));
         return "home";

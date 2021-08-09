@@ -12,64 +12,46 @@ import java.util.List;
 public class FileService {
 
     private final FileMapper fileMapper;
+    private final UserService userService;
 
-    public FileService(FileMapper fileMapper) {
+    public FileService(FileMapper fileMapper, UserService userService) {
         this.fileMapper = fileMapper;
+        this.userService = userService;
     }
 
-    boolean filenameIsAvailable(String filename) {
-        return fileMapper.getFileByName(filename) == null;
+    public List<File> getFilesByUser(int userId) {
+        return fileMapper.getFilesByUser(userId);
     }
 
-    public File getFile(String name) {
-        return fileMapper.getFileByName(name);
+    public File getFileById(int fileId) {
+        return fileMapper.getFileById(fileId);
     }
 
-    //TODO: PREVENT USERS FROM ADDING MULTIPLE Files
-    public boolean addFile(MultipartFile multipartFile) throws IOException {
+    public boolean addFile(MultipartFile multipartFile, String username) throws IOException {
+        int userId = userService.getUser(username).getUserId();
 
-        if(filenameIsAvailable(multipartFile.getOriginalFilename())) {
-
-            File file = new File(
-                    null,
-                    multipartFile.getOriginalFilename(),
-                    multipartFile.getContentType(),
-                    Long.toString(multipartFile.getSize()),
-                    multipartFile.getBytes()
+        File file = new File(
+                null,
+                multipartFile.getOriginalFilename(),
+                multipartFile.getContentType(),
+                Long.toString(multipartFile.getSize()),
+                multipartFile.getBytes(),
+                userId
             );
-
-            fileMapper.insertFile(file);
-            return true;
-        }
-        return false;
+        return fileMapper.insertFile(file) > 0;
     }
 
-    ///todo:implement method in file mapper
     public List<File> getAllFiles() {
         return fileMapper.getAllFiles();
     }
 
-    public boolean updateFile(File file) {
-        File optionalFile = fileMapper.getFileById(file.getFileId());
-
-        if(optionalFile != null) {
-            if(!optionalFile.getFilename().equals(file.getFilename())) {
-                if (!filenameIsAvailable(file.getFilename())) {
-                    return false;
-                }
-            }
-
-            fileMapper.updateFile(file);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean deleteFile(String filename) {
-        File file = fileMapper.getFileByName(filename);
+    public boolean deleteFile(int fileId) {
+        File file = fileMapper.getFileById(fileId);
         if (file != null) {
-            return fileMapper.deleteFile(file) > 0;
+            return fileMapper.deleteFile(fileId) > 0;
         }
         return false;
     }
+
+
 }
