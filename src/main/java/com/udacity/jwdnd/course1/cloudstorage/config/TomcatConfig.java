@@ -1,4 +1,4 @@
-package com.udacity.jwdnd.course1.cloudstorage.security;
+package com.udacity.jwdnd.course1.cloudstorage.config;
 
 import org.apache.catalina.connector.Connector;
 import org.apache.coyote.http11.AbstractHttp11Protocol;
