@@ -11,6 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+
 @Controller
 @RequestMapping("/files")
 public class FileController {
@@ -29,11 +30,11 @@ public class FileController {
         try {
             if(fileService.addFile(file, auth.getName())) {
                 result.addObject("success", true);
-                status = "Uploaded the file: " + file.getOriginalFilename() +" successfully";
+                status = "File uploaded successfully.";
             }
         } catch (IOException ex) {
             result.addObject("errorMsg", true);
-            status = "Unable to upload the file: " + file.getOriginalFilename();
+            status = "Unable to upload file.";
         }
         result.setViewName("result");
         result.addObject("message", status);
@@ -63,9 +64,11 @@ public class FileController {
 
         response.setContentType(file.getContentType());
         response.setContentLength(Integer.parseInt(file.getFileSize()));
-        String headerKey = "Content-View";
         String headerValue = "file:" + file.getFilename();
-        response.setHeader(headerKey, headerValue);
+        response.setHeader("Content-Disposition", headerValue);
         response.getOutputStream().write(file.getFileData());
+        response.flushBuffer();
     }
+
+
 }

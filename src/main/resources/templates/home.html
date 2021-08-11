@@ -35,7 +35,7 @@
                                         <input type="file" class="form-control-file" id="fileUpload" name="fileUpload">
                                     </div>
                                     <div class="col-sm-4">
-                                        <button type="submit" class="btn btn-dark">Upload</button>
+                                        <button type="submit" class="btn btn-dark" onclick="validateFileItem()">Upload</button>
                                     </div>
                                 </div>
                             </div>
@@ -218,6 +218,12 @@
                 }
                 $('#credentialModal').modal('show');
             }
+
+            //make file upload a required field
+            function validateFileItem() {
+                document.getElementById("fileUpload").required = true;
+            }
+
         </script>
     </body>
 </html>

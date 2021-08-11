@@ -12,7 +12,8 @@
         <div class="container justify-content-center w-50 p-3" style="margin-top: 5em;">
             <div th:if="${success}" class="alert alert-success fill-parent">
                 <h1 class="display-5">Success</h1>
-                <span >Your changes were successfully saved. Click <a th:href="@{/home}">here</a> to continue.</span>
+                <span th:text="${message}" >Your changes were successfully saved.</span>
+                <span> Click <a th:href="@{/home}">here</a> to continue.</span>
             </div>
             <div th:if="${error}" class="alert alert-danger fill-parent">
                 <h1 class="display-5">Error</h1>
