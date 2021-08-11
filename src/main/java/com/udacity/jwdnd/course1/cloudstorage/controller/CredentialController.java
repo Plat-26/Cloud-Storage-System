@@ -1,11 +1,8 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
-import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,7 +40,7 @@ public class CredentialController {
         } else {
             if(credentialService.addCredential(credential)) {
                 result.addObject("success", true);
-                status = "Credential save successfully";
+                status = "Credential saved successfully";
             } else {
                 result.addObject("errorMsg", true);
                 status = "Unable to save credential, please try again.";
