@@ -52,7 +52,7 @@ public class CredentialController {
     }
 
     @GetMapping("/delete/{credentialId}")
-    public ModelAndView deleteNote(@PathVariable int credentialId) {
+    public ModelAndView deleteCredential(@PathVariable int credentialId) {
         ModelAndView result = new ModelAndView();
         String status = null;
 

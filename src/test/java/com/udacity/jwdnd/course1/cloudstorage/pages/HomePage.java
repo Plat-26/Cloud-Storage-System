@@ -13,7 +13,7 @@ public class HomePage {
     @FindBy(id = "nav-notes-tab")
     public WebElement notesTab;
 
-    @FindBy(id = "nav-credentials")
+    @FindBy(id = "nav-credentials-tab")
     public WebElement credentialsTab;
 
     @FindBy(id = "fileUpload")
@@ -140,4 +140,17 @@ public class HomePage {
     public String getNoteDescInputField() {
         return noteDescriptionField.getAttribute("value");
     }
+
+    public String getCredentialUrlField() {
+        return credentialUrlField.getAttribute("value");
+    }
+
+    public String getCredentialUsernameField() {
+        return credentialUsernameField.getAttribute("value");
+    }
+
+    public String getCredentialPasswordField() {
+        return credentialPasswordField.getAttribute("value");
+    }
+
 }
