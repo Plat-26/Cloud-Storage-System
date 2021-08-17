@@ -1,5 +1,7 @@
 package com.udacity.jwdnd.course1.cloudstorage.integrationTests;
 
+import com.udacity.jwdnd.course1.cloudstorage.pages.HomePage;
+import com.udacity.jwdnd.course1.cloudstorage.pages.LoginPage;
 import com.udacity.jwdnd.course1.cloudstorage.pages.SignUpPage;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
@@ -18,6 +20,8 @@ public class UserSignupTest {
 
     private static WebDriver driver;
     private SignUpPage signUpPage;
+    private LoginPage loginPage;
+    private HomePage homePage;
 
     @BeforeAll
     static void beforeAll() {
@@ -34,19 +38,43 @@ public class UserSignupTest {
     void setUp() {
         driver.get("http://localhost:" + port + "/signup");
         signUpPage = new SignUpPage(driver);
+        loginPage = new LoginPage(driver);
+        homePage = new HomePage(driver);
     }
 
     @Test
     void test_userSignup_happy_path() throws InterruptedException {
-        signUpPage.setFirstName("John");
-        signUpPage.setLastName("Doe");
-        signUpPage.setUsername("Johnny");
-        signUpPage.setPassword("password");
-        signUpPage.submitForm();
+        signUpUser();
         Thread.sleep(5000); //wait for feedback
         assertThat(signUpPage.getSignUpSuccess()).contains("login");
         signUpPage.clickLogin();
         String currentUrl = driver.getCurrentUrl();
         assertThat(currentUrl).contains("login");
+    }
+
+    @Test
+    void test_user_login_and_logout() throws InterruptedException {
+        signUpUser();
+        loginUser();
+
+        homePage.logoutButton.click();
+        Thread.sleep(2000);
+        String currentUrl = driver.getCurrentUrl();
+        assertThat(currentUrl).contains("login");
+    }
+
+    private void signUpUser() {
+        signUpPage.setFirstName("John");
+        signUpPage.setLastName("Doe");
+        signUpPage.setUsername("johnny");
+        signUpPage.setPassword("password");
+        signUpPage.submitForm();
+    }
+
+    private void loginUser() {
+        signUpPage.clickLogin();
+        loginPage.setUsername("johnny");
+        loginPage.setPassword("password");
+        loginPage.submitForm();
     }
 }

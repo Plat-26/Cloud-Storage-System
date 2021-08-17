@@ -88,6 +88,9 @@ public class HomePage {
     @FindBy(css = "#credentialTable a")
     public WebElement deleteCredentialButton;
 
+    @FindBy(css = "#logoutDiv button")
+    public WebElement logoutButton;
+
 
     public HomePage(WebDriver driver) {
         PageFactory.initElements(driver, this);
