@@ -13,7 +13,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class UserSignupTest {
+public class UserAuthTest {
 
     @LocalServerPort
     private Integer port;
@@ -61,6 +61,18 @@ public class UserSignupTest {
         Thread.sleep(2000);
         String currentUrl = driver.getCurrentUrl();
         assertThat(currentUrl).contains("login");
+        assertThat(currentUrl).contains("logout");
+    }
+
+    @Test
+    void test_userLogin_sad_path() {
+        driver.get("http://localhost:" + port + "/login");
+        loginPage.setUsername("johnny");
+        loginPage.setPassword("password");
+        loginPage.submitForm();
+
+        String errorMsg = loginPage.getInvalidDataDiv();
+        assertThat(errorMsg.contains("invalid"));
     }
 
     private void signUpUser() {

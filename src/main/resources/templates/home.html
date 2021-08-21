@@ -11,8 +11,8 @@
     <body class="p-3 mb-2 bg-light text-black">
         <div class="container">
             <div id="logoutDiv">
-                <form action="#" method="GET">
-                    <button type="submit" th:action="@{/logout}" class="btn btn-secondary float-right">Logout</button>
+                <form action="#" method="POST" th:action="@{/logout}">
+                    <button type="submit" class="btn btn-secondary float-right">Logout</button>
                 </form>
             </div>
             <div id="contentDiv" style="clear: right;">
